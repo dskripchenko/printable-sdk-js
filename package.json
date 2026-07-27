@@ -1,0 +1,36 @@
+{
+  "name": "@dskripchenko/printable-sdk",
+  "version": "1.0.0",
+  "description": "Official Node.js SDK for the Printable document-generation service: HMAC-signed integration API client (templates, print-forms, batches, drafts, webhooks).",
+  "keywords": ["printable", "sdk", "api-client", "pdf", "docx", "document-generation", "hmac"],
+  "homepage": "https://github.com/dskripchenko/printable-sdk-js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dskripchenko/printable-sdk-js.git"
+  },
+  "license": "MIT",
+  "author": "Denis Skripchenko (https://github.com/dskripchenko)",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^4.0.0"
+  }
+}
