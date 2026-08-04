@@ -62,6 +62,21 @@ export class PrintableClient {
     return this.call('POST', 'template/import', { ...options, package_b64: packageB64, group_id: groupId });
   }
 
+  /**
+   * Импорт Word-документа как черновика шаблона.
+   *
+   * Доступен credential с полным доступом и только там, где включён на
+   * инсталляции: иначе сервис отвечает `docx-import-disabled`.
+   */
+  templateImportDocx(docxB64: string, groupId: number, name?: string): Promise<Payload> {
+    const body: Payload = { docx_b64: docxB64, group_id: groupId }
+    // Пустое имя не шлём: сервис отклонит его форматом, а не примет как
+    // «шаблон без названия».
+    if (name !== undefined) body.name = name
+
+    return this.call('POST', 'template/import-docx', body)
+  }
+
   // ── Print forms ────────────────────────────────────────────────────
 
   printFormCreate(params: Payload): Promise<Payload> {

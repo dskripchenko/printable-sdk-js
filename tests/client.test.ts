@@ -94,4 +94,24 @@ describe('PrintableClient', () => {
     expect(client.verifyWebhook('{"uuid":"abc"}', sig, '1753600000')).toBe(true);
     expect(client.verifyWebhook('{"uuid":"abc"}', 'sha256=deadbeef', '1753600000')).toBe(false);
   });
+
+  it('templateImportDocx отправляет документ и не шлёт пустое имя', async () => {
+    const { client, captured } = makeClient();
+    await client.templateImportDocx('UEsDBBQ=', 7);
+
+    expect(captured[0].method).toBe('POST');
+    expect(captured[0].url).toBe('https://printable.test/api/integration/template/import-docx');
+    expect(captured[0].body?.docx_b64).toBe('UEsDBBQ=');
+    expect(captured[0].body?.group_id).toBe(7);
+    // Имя необязательно: пустое поле сервис отклонит форматом, а не примет
+    // как «шаблон без названия».
+    expect(captured[0].body).not.toHaveProperty('name');
+  });
+
+  it('templateImportDocx передаёт имя, когда его задали', async () => {
+    const { client, captured } = makeClient();
+    await client.templateImportDocx('UEsDBBQ=', 7, 'Договор поставки');
+
+    expect(captured[0].body?.name).toBe('Договор поставки');
+  });
 });
