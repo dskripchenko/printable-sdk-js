@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      # The published code targets Node >= 18 (see `engines`), but the test
+      # runner itself needs 20+, so compatibility with 18 is a promise the
+      # sources keep rather than something this matrix proves.
+      matrix:
+        node: ['20', '22']
+
+    name: Node ${{ matrix.node }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Tests
+        run: npm test
+
+      # Same command `prepublishOnly` runs — the build must not first break
+      # at publish time.
+      - name: Build
+        run: npm run build
