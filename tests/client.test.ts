@@ -103,8 +103,8 @@ describe('PrintableClient', () => {
     expect(captured[0].url).toBe('https://printable.test/api/integration/template/import-docx');
     expect(captured[0].body?.docx_b64).toBe('UEsDBBQ=');
     expect(captured[0].body?.group_id).toBe(7);
-    // Имя необязательно: пустое поле сервис отклонит форматом, а не примет
-    // как «шаблон без названия».
+    // The name is optional: the service rejects an empty field on format
+    // rather than accepting it as "a template with no title".
     expect(captured[0].body).not.toHaveProperty('name');
   });
 

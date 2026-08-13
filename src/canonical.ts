@@ -49,11 +49,11 @@ function encode(value: unknown): string {
   if (typeof value === 'object') {
     const obj = value as Record<string, unknown>;
     const keys = Object.keys(obj);
-    // PHP: пустой объект после json_decode(assoc) — пустой array → "[]".
+    // PHP: an empty object after json_decode(assoc) is an empty array → "[]".
     if (keys.length === 0) {
       return '[]';
     }
-    // Объект с ключами "0".."n" PHP считает списком.
+    // PHP treats an object with the keys "0".."n" as a list.
     if (isSequentialKeys(obj)) {
       return '[' + keys.map((k) => encode(obj[k])).join(',') + ']';
     }
@@ -64,10 +64,10 @@ function encode(value: unknown): string {
 }
 
 /**
- * PHP ksort (SORT_REGULAR): числовые ключи сравниваются как числа,
- * прочие — как строки; числовые всегда раньше строковых при сравнении
- * числа со строкой числовая семантика PHP8 — для API-payload'ов ключи
- * практически всегда строковые, обычной сортировки достаточно.
+ * PHP's ksort (SORT_REGULAR): the numeric keys are compared as numbers and the
+ * rest as strings; the numeric ones always come before the string ones, and when
+ * a number is compared with a string PHP 8's numeric semantics apply — for API
+ * payloads the keys are almost always strings, so an ordinary sort is enough.
  */
 function phpKsort(keys: string[]): string[] {
   return [...keys].sort((a, b) => {
@@ -80,7 +80,7 @@ function phpKsort(keys: string[]): string[] {
   });
 }
 
-/** JSON string escaping как в PHP с UNESCAPED_UNICODE|UNESCAPED_SLASHES. */
+/** JSON string escaping as in PHP with UNESCAPED_UNICODE|UNESCAPED_SLASHES. */
 function encodeString(value: string): string {
   let out = '"';
   for (const ch of value) {

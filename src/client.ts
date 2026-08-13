@@ -63,15 +63,15 @@ export class PrintableClient {
   }
 
   /**
-   * Импорт Word-документа как черновика шаблона.
+   * Importing a Word document as a template draft.
    *
-   * Доступен credential с полным доступом и только там, где включён на
-   * инсталляции: иначе сервис отвечает `docx-import-disabled`.
+   * Available to a credential with full access and only where it is enabled on
+   * the installation: otherwise the service answers `docx-import-disabled`.
    */
   templateImportDocx(docxB64: string, groupId: number, name?: string): Promise<Payload> {
     const body: Payload = { docx_b64: docxB64, group_id: groupId }
-    // Пустое имя не шлём: сервис отклонит его форматом, а не примет как
-    // «шаблон без названия».
+    // We do not send an empty name: the service would reject it on format
+    // rather than accept it as "a template with no title".
     if (name !== undefined) body.name = name
 
     return this.call('POST', 'template/import-docx', body)
