@@ -51,7 +51,9 @@ const status = await client.printFormBatchGet(batch.uuid as string);
 ## API-Oberfläche
 
 `templateList` · `templateContract` · `templateExport` · `templateImport` ·
+`templateImportDocx` · `templateImportXlsx` ·
 `printFormCreate` · `printFormGet` · `printFormRules` · `printFormBatch` ·
+`printFormSignatureRequest` · `printFormSignatureComplete` ·
 `printFormBatchGet` · `documentDraftCreate` · `documentDraftGet` ·
 `call(method, endpoint, params)`
 
