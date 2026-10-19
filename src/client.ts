@@ -77,6 +77,22 @@ export class PrintableClient {
     return this.call('POST', 'template/import-docx', body)
   }
 
+  /**
+   * Importing an Excel workbook (.xlsx) as a template draft: one section per
+   * non-empty sheet, printed at the sheet's own print scale.
+   *
+   * The group is an existing group's id, or a path ("Реестры / Отчёты") the
+   * service creates when it is missing.
+   */
+  templateImportXlsx(xlsxB64: string, group: number | string, name?: string): Promise<Payload> {
+    const body: Payload = { xlsx_b64: xlsxB64 }
+    if (typeof group === 'number') body.group_id = group
+    else body.group = group
+    if (name !== undefined) body.name = name
+
+    return this.call('POST', 'template/import-xlsx', body)
+  }
+
   // ── Print forms ────────────────────────────────────────────────────
 
   printFormCreate(params: Payload): Promise<Payload> {
@@ -85,6 +101,32 @@ export class PrintableClient {
 
   printFormGet(uuid: string, format: 'link' | 'b64' = 'link'): Promise<Payload> {
     return this.call('GET', 'print-form/get', { uuid, format });
+  }
+
+  /**
+   * Asking for the digest an external signer signs: for a document in
+   * `awaiting_signature`, with the signer's certificate (PEM, or DER in base64
+   * as CryptoPro exports it). Sign the digest into a detached CMS and pass it
+   * to `printFormSignatureComplete()` before `expires_at`. Without `slot` —
+   * the signature field the document waits for.
+   */
+  printFormSignatureRequest(uuid: string, certificate: string, slot?: string): Promise<Payload> {
+    const body: Payload = { uuid, certificate }
+    if (slot !== undefined) body.slot = slot
+
+    return this.call('POST', 'print-form/signature-request', body)
+  }
+
+  /**
+   * Handing in the external signature: the detached CMS (base64 or PEM) for
+   * the digest of `printFormSignatureRequest()`. The answer is the document —
+   * `done` when every signature is in, else still `awaiting_signature`.
+   */
+  printFormSignatureComplete(uuid: string, cms: string, slot?: string, format: 'link' | 'b64' = 'link'): Promise<Payload> {
+    const body: Payload = { uuid, cms, format }
+    if (slot !== undefined) body.slot = slot
+
+    return this.call('POST', 'print-form/signature-complete', body)
   }
 
   printFormRules(template: string, version?: string): Promise<Payload> {

@@ -114,4 +114,40 @@ describe('PrintableClient', () => {
 
     expect(captured[0].body?.name).toBe('Договор поставки');
   });
+
+  it('templateImportXlsx принимает id группы или её путь', async () => {
+    const { client, captured } = makeClient();
+    await client.templateImportXlsx('UEsDBBQ=', 7);
+    await client.templateImportXlsx('UEsDBBQ=', 'Реестры / Отчёты', 'Отчёт');
+
+    expect(captured[0].url).toBe('https://printable.test/api/integration/template/import-xlsx');
+    expect(captured[0].body?.group_id).toBe(7);
+    expect(captured[0].body).not.toHaveProperty('group');
+    expect(captured[0].body).not.toHaveProperty('name');
+    expect(captured[1].body?.group).toBe('Реестры / Отчёты');
+    expect(captured[1].body).not.toHaveProperty('group_id');
+    expect(captured[1].body?.name).toBe('Отчёт');
+  });
+
+  it('printFormSignatureRequest шлёт сертификат и поле подписи, когда оно задано', async () => {
+    const { client, captured } = makeClient();
+    await client.printFormSignatureRequest('11111111-1111-1111-1111-111111111111', 'MIIB');
+    await client.printFormSignatureRequest('11111111-1111-1111-1111-111111111111', 'MIIB', 'counterparty');
+
+    expect(captured[0].method).toBe('POST');
+    expect(captured[0].url).toBe('https://printable.test/api/integration/print-form/signature-request');
+    expect(captured[0].body?.certificate).toBe('MIIB');
+    expect(captured[0].body).not.toHaveProperty('slot');
+    expect(captured[1].body?.slot).toBe('counterparty');
+  });
+
+  it('printFormSignatureComplete шлёт CMS и формат ответа', async () => {
+    const { client, captured } = makeClient();
+    await client.printFormSignatureComplete('11111111-1111-1111-1111-111111111111', 'MIAG', undefined, 'b64');
+
+    expect(captured[0].url).toBe('https://printable.test/api/integration/print-form/signature-complete');
+    expect(captured[0].body?.cms).toBe('MIAG');
+    expect(captured[0].body?.format).toBe('b64');
+    expect(captured[0].body).not.toHaveProperty('slot');
+  });
 });
