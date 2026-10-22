@@ -53,12 +53,45 @@ const status = await client.printFormBatchGet(batch.uuid as string);
 `templateImportDocx` · `templateImportXlsx` ·
 `printFormCreate` · `printFormGet` · `printFormRules` · `printFormBatch` ·
 `printFormSignatureRequest` · `printFormSignatureComplete` ·
+`printFormSignatureInvite` ·
 `printFormBatchGet` · `documentDraftCreate` · `documentDraftGet` ·
 `call(method, endpoint, params)` (escape hatch).
 
 Every method resolves with the decoded `payload` of the response envelope.
 Errors (non-2xx or `success: false`) reject with `PrintableError`
 (`status`, `errorKey`, `payload`).
+
+## Signing and protection
+
+`print-form/create` and `print-form/batch` accept optional parameters, passed as-is in the params:
+
+- `preset` — a print-preset code used instead of `template` (`document-draft/create` accepts it too);
+- `signing` — a signature profile per slot, a visible or invisible signature, the reason, and `recipients` — the counterparties who sign the document themselves;
+- `protection` — PDF protection: `{"generate": true}` lets the service generate the password, or pass your own one under `password`; the optional `permissions` is `read_print`, `read_only` or `forms_sign`.
+
+The response then carries a `protection` block (`protected`, `permissions`, `password`, `owner_password`). **Passwords are returned only once** — in the response that issues the document; afterwards they come back masked (`••••••••`), so store them right away. Each `signature.slots[]` item may carry `method` (`cms`, `plugin`, `pdf` or `sig`) and `signature_link` — the recipient's detached `.sig`.
+
+```ts
+const doc = await client.printFormCreate({
+  preset: 'contract-signed',
+  variables: { contract: { number: 15 } },
+  signing: {
+    slots: { company: { profile: 'ceo' } },
+    invisible: false,
+    reason: 'Contract 15',
+    recipients: { buyer: { email: 'buyer@example.com', name: 'Buyer LLC' } },
+  },
+  protection: { generate: true, permissions: 'read_print' },
+});
+// The password comes only in this response — store it now
+const protection = doc.protection;
+
+// Hand the link over yourself, or let the service email it
+const invite = await client.printFormSignatureInvite(doc.uuid as string, 'buyer@example.com', 'buyer', 'Buyer LLC');
+console.log(invite.sign_url);
+```
+
+`printFormSignatureInvite()` invites the recipient to sign: it returns `sign_url` — a personal link to the signing page (CryptoPro browser plug-in, a detached `.sig` upload, or a PDF signed in its field) — and `expires_at`. With an email address the service also sends the link (`sent`).
 
 ## Webhooks
 

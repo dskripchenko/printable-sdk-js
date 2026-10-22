@@ -129,6 +129,23 @@ export class PrintableClient {
     return this.call('POST', 'print-form/signature-complete', body)
   }
 
+  /**
+   * Inviting the document's recipient to sign it themselves: the service
+   * issues a personal link to a signing page (CryptoPro browser plug-in, a
+   * detached .sig upload, or a PDF signed in its field). With `email` the
+   * service also sends the link by email. Without `slot` — the signature field
+   * the document waits for. Resolves with `uuid`, `slot`, `sign_url`,
+   * `expires_at`, `sent`.
+   */
+  printFormSignatureInvite(uuid: string, email?: string, slot?: string, name?: string): Promise<Payload> {
+    const body: Payload = { uuid }
+    if (slot !== undefined) body.slot = slot
+    if (email !== undefined) body.email = email
+    if (name !== undefined) body.name = name
+
+    return this.call('POST', 'print-form/signature-invite', body)
+  }
+
   printFormRules(template: string, version?: string): Promise<Payload> {
     return this.call('GET', 'print-form/rules', version ? { template, version } : { template });
   }
