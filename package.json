@@ -1,6 +1,6 @@
 {
   "name": "@dskripchenko/printable-sdk",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Official Node.js SDK for the Printable document-generation service: HMAC-signed integration API client (templates, print-forms, batches, drafts, webhooks).",
   "keywords": [
     "printable",

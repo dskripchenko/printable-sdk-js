@@ -150,4 +150,20 @@ describe('PrintableClient', () => {
     expect(captured[0].body?.format).toBe('b64');
     expect(captured[0].body).not.toHaveProperty('slot');
   });
+
+  it('printFormSignatureInvite шлёт адрес и имя получателя, пропуская незаданные', async () => {
+    const { client, captured } = makeClient();
+    await client.printFormSignatureInvite('11111111-1111-1111-1111-111111111111');
+    await client.printFormSignatureInvite('11111111-1111-1111-1111-111111111111', 'buyer@example.com', 'buyer', 'Buyer LLC');
+
+    expect(captured[0].method).toBe('POST');
+    expect(captured[0].url).toBe('https://printable.test/api/integration/print-form/signature-invite');
+    expect(captured[0].body?.uuid).toBe('11111111-1111-1111-1111-111111111111');
+    expect(captured[0].body).not.toHaveProperty('email');
+    expect(captured[0].body).not.toHaveProperty('slot');
+    expect(captured[0].body).not.toHaveProperty('name');
+    expect(captured[1].body?.email).toBe('buyer@example.com');
+    expect(captured[1].body?.slot).toBe('buyer');
+    expect(captured[1].body?.name).toBe('Buyer LLC');
+  });
 });
